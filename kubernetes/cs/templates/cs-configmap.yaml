@@ -1,0 +1,212 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cs-{{ default "staging" .Release.Namespace }}-nginx-config
+  labels:
+    tier: backend
+data:
+  config: |
+      server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        
+        # Set nginx to serve files from the shared volume!
+        root /var/www/html;
+        server_name _;
+
+        location ~ /\.ht {
+          deny all;
+        }
+
+        location ~ \.(php|inc)$ {
+          root /var/www/html;
+          try_files $uri =404;
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+          fastcgi_pass cs-{{ default "staging" .Release.Namespace }}-php:9000;
+          fastcgi_index index.php;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          fastcgi_param PATH_INFO $fastcgi_path_info;
+          fastcgi_ignore_client_abort on;
+          fastcgi_connect_timeout     30s;
+          fastcgi_read_timeout        30s;
+          fastcgi_send_timeout        60s;
+          include fastcgi_params;
+        }
+
+        # # # # #
+        # START - REWRITES and REDIRECTS
+        # Variable for redirection
+        set $rurl "https://computing.calvin.edu";
+
+        # Permanent redirects first for Calvin DotCMS
+        location = / {
+          return 301 $rurl;
+        }
+
+        location / {
+          rewrite ^/index.htm$ $rurl/ permanent;
+          rewrite ^/index.html$ $rurl/ permanent;
+          rewrite ^/index.php$ $rurl/ permanent;
+        }
+
+        location /academics {
+            rewrite ^(/academics/bads)$ $rurl/academics/ds permanent;
+            rewrite ^(/academics/honors)$ https://calvin.edu/honors permanent;
+            rewrite ^ $rurl$request_uri permanent;
+          }
+        
+          location /resources {
+            rewrite ^(/resources/scholarships)$ $rurl/resources/scholarships-awards permanent;
+            rewrite ^(/resources/faqs)$ $rurl/about/faq permanent;
+            rewrite ^(/resources/software)$ $rurl/resources/software-services permanent;
+            rewrite ^ $rurl$request_uri permanent;
+          }
+        
+          location /people {
+            rewrite ^/people/(.*)$ $rurl/faculty-staff/$1 permanent;
+            rewrite ^/people$ $rurl/faculty-staff/ permanent;
+          }
+
+          location /scholarships {
+            rewrite ^(/scholarships/nyhoff)$ https://calvin.academicworks.com/opportunities/11619 permanent;
+            rewrite ^(/scholarships/derose)$ https://calvin.academicworks.com/opportunities/8327 permanent;
+            rewrite ^(/scholarships/duthler)$ https://calvin.academicworks.com/opportunities/7554 permanent;
+            rewrite ^(/scholarships/vanderbrug)$ https://calvin.academicworks.com/opportunities/7761 permanent;
+            rewrite ^(/scholarships/grateful)$ https://calvin.academicworks.com/opportunities/8178 permanent;
+            rewrite ^(/scholarships/dornerworks)$ https://calvin.academicworks.com/opportunities/7307 permanent;
+            rewrite ^(/scholarships/spectrum)$ https://calvin.academicworks.com/opportunities/9648 permanent;
+            rewrite ^(/scholarships/open)$ https://calvin.academicworks.com/opportunities/7310 permanent;
+            rewrite ^(/scholarships/hommes)$ https://calvin.academicworks.com/opportunities/7218 permanent;
+            rewrite ^(/scholarships/cca)$ $rurl/resources/scholarships-awards/cca.html permanent;
+            rewrite ^(/scholarships/cisa)$ $rurl/resources/scholarships-awards/cisa.html permanent;
+            rewrite ^(/scholarships/tools)$  $rurl/resources/scholarships-awards/ permanent;
+            rewrite ^/scholarships/(.*)$ $rurl/resources/scholarships-awards/ permanent;
+            rewrite ^/scholarships$ $rurl/resources/scholarships-awards permanent;
+          }
+
+          location /about {
+            rewrite ^ $rurl$request_uri permanent;
+          }
+
+          location /research {
+            rewrite ^ $rurl$request_uri permanent;
+          }
+
+          location /contact {
+            rewrite ^ $rurl$request_uri permanent;
+          }
+
+          location /documents {
+            rewrite ^(/documents/50_Percent_Initiative)$ $rurl/documents/50-percent-initiative.html permanent;
+            rewrite ^(/documents/Adjunct_Position)$ $rurl/documents/adjunct-position.html permanent;
+            rewrite ^(/documents/Data_Science_Cognate_Tracks)$ $rurl/documents/data-science-cognate-tracks.html permanent;
+            rewrite ^(/documents/Tenure_Track_Faculty_Position)$ $rurl/documents/tenure-track-faculty-position.html permanent;
+            rewrite ^(/documents/Women_in_Computing)$ $rurl/documents/women-in-computing.html permanent;
+            rewrite ^(/documents/christian_computing)$ $rurl/documents/christianity-and-computing.html permanent;
+            rewrite ^(/documents/christian_perspective_on_computing)$ $rurl/documents/christian-perspective-on-computing.html permanent;
+            rewrite ^(/documents/computing_careers)$ $rurl/careers-outcomes/ permanent;
+            rewrite ^(/documents/council)$ $rurl/documents/council.html permanent;
+            rewrite ^(/documents/creative_computing)$ $rurl/documents/creative-computing.html permanent;
+            rewrite ^(/documents/dynamic_link_journal)$ $rurl/documents/dynamic-link-journal.html permanent;
+            rewrite ^(/documents/fit)$ $rurl/documents/fit.html permanent;
+            rewrite ^(/documents/fit_exemption)$ $rurl/documents/fit-exemption-exam.html permanent;
+            rewrite ^(/documents/fit_tutorials)$ $rurl/documents/fit-technology-tutorials.html permanent;
+            rewrite ^(/documents/girls_who_code_club)$ $rurl/documents/girls-who-code-club.html permanent;
+            rewrite ^(/documents/graduate_school)$ $rurl/documents/graduate-school.html permanent;
+            rewrite ^(/documents/intelligent_machines)$ $rurl/documents/intelligent-machines.html permanent;
+            rewrite ^(/documents/mission)$ $rurl/about/mission-statement permanent;
+            rewrite $rurl$request_uri permanent;
+          }
+
+          # Redirect some popular but outdated URIs.
+          rewrite /p/christian_scholarship $rurl/documents/christianity-and-computing.html permanent;
+          rewrite /p/ComputingCareersMarket $rurl/careers-outcomes/ permanent;
+          rewrite /p/DynamicLinkJournal $rurl/documents/dynamic-link-journal.html permanent;
+          rewrite /gwc $rurl/documents/girls-who-code-club.html permanent;
+          rewrite ^/books/(.*) /activities/books/$1 permanent;
+          rewrite ^/curriculum/(.*) /courses/$1 permanent;
+          rewrite ^/shaping_a_digital_world /activities/books/shaping_a_digital_world permanent;
+          rewrite ^/courses/cs/108/snelesn/references/remote.html /sysadmin/remoteaccess-linux.php permanent;
+          rewrite ^/fieldguide /activities/books/fieldguide permanent;
+
+          # x95 permanent redirects
+          rewrite ^/courses/cs/x95/hplantin/videos/(.*) /courses/cs/x95/videos/2017-2018/$1 permanent;
+          rewrite ^/courses/cs/x95/kvlinden/videos/(.*) /courses/cs/x95/videos/$1 permanent;
+          rewrite ^/courses/cs/x95/adams/videos/CerfKeynoteSC21.mp4 https://www.youtube.com/watch?v=id3Nd5r8Sxs permanent;
+
+          # courses redirects
+          rewrite ^/courses/cs/344/kvlinden/resources/AIMA-3rd-edition.pdf https://zoo.cs.yale.edu/classes/cs470/materials/aima2010.pdf permanent;
+
+          # END - REWRITES and REDIRECTS
+          # # # # #
+          # # # # #
+
+          # Password-protect department documents.
+          # If this is the 1st regex rule, then /department/*/*.php files are downloaded, not run.
+          location ~ ^/department(?!\w) {
+            auth_basic           "Department Login";
+            auth_basic_user_file /var/www/.htpasswd;
+            root                 /var/www/html;
+            autoindex            on;
+          }
+
+          # Hide the /static path from all user-facing pages.
+          location ~ ^/(css|js|administration|activities|images|.well-known)/? {
+            root                 /var/www/html;
+            autoindex         on;
+          }
+
+          # /sysadmin top level
+          location /sysadmin {
+            root                 /var/www/html;
+            autoindex           on;
+
+            location /sysadmin/labview/ {
+              satisfy all;
+              auth_pam "Restricted Access";
+              auth_pam_service_name "nginx";
+              allow 153.106.0.0/16;
+              allow 127.0.0.1;
+              deny all;
+            }
+
+            location /sysadmin/json/ {
+              satisfy all;
+              auth_pam "Restricted Access";
+              auth_pam_service_name "nginx";
+              allow 153.106.0.0/16;
+              allow 127.0.0.1;
+              deny all;
+            }
+          }
+
+          # Make sure /courses has its own location setting for use with sublocations
+          location /courses {
+            root                 /var/www/html;
+            autoindex           on;
+
+            # password protect x95 directories
+            location /courses/cs/x95/videos/2017-2018/protected/ {
+              satisfy all;
+              allow 153.106.0.0/16;
+              allow 127.0.0.1;
+              deny  all;
+              auth_basic                "X95 Protected Assets";
+              auth_basic_user_file      /var/www/.htpasswd-x95;
+            }
+
+            location /courses/cs/x95/hplantin/protected/ {
+              satisfy all;
+              allow 153.106.0.0/16;
+              allow 127.0.0.1;
+              deny  all;
+              auth_basic                "X95 Protected Assets";
+              auth_basic_user_file      /var/www/.htpasswd-x95;
+            }
+
+            rewrite /courses/cs/338 https://sites.google.com/calvin.edu/cs338/ redirect;
+          }
+        
+          # END - STATIC file serving, directory configuration
+          # # # # #
+      }

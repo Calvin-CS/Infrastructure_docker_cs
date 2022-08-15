@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cs-{{ default "staging" .Release.Namespace }}-nginx
+  labels:
+    tier: backend
+  namespace: {{ default "staging" .Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: cs-{{ default "staging" .Release.Namespace }}-nginx
+    tier: backend
