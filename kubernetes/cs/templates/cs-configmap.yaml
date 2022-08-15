@@ -145,7 +145,7 @@ data:
           # If this is the 1st regex rule, then /department/*/*.php files are downloaded, not run.
           location ~ ^/department(?!\w) {
             auth_basic           "Department Login";
-            auth_basic_user_file /var/www/.htpasswd;
+            auth_basic_user_file /etc/secrets/cs-htpasswd;
             root                 /var/www/html;
             autoindex            on;
           }
@@ -163,8 +163,8 @@ data:
 
             location /sysadmin/labview/ {
               satisfy all;
-              auth_pam "Restricted Access";
-              auth_pam_service_name "nginx";
+              auth_basic           "Department Login";
+              auth_basic_user_file /etc/secrets/cs-htpasswd;
               allow 153.106.0.0/16;
               allow 127.0.0.1;
               deny all;
@@ -172,8 +172,8 @@ data:
 
             location /sysadmin/json/ {
               satisfy all;
-              auth_pam "Restricted Access";
-              auth_pam_service_name "nginx";
+              auth_basic           "Department Login";
+              auth_basic_user_file /etc/secrets/cs-htpasswd;
               allow 153.106.0.0/16;
               allow 127.0.0.1;
               deny all;
@@ -192,7 +192,7 @@ data:
               allow 127.0.0.1;
               deny  all;
               auth_basic                "X95 Protected Assets";
-              auth_basic_user_file      /var/www/.htpasswd-x95;
+              auth_basic_user_file      /etc/secrets/cs-htpasswd-x95;
             }
 
             location /courses/cs/x95/hplantin/protected/ {
@@ -201,7 +201,7 @@ data:
               allow 127.0.0.1;
               deny  all;
               auth_basic                "X95 Protected Assets";
-              auth_basic_user_file      /var/www/.htpasswd-x95;
+              auth_basic_user_file      /etc/secrets/cs-htpasswd-x95;
             }
 
             rewrite /courses/cs/338 https://sites.google.com/calvin.edu/cs338/ redirect;

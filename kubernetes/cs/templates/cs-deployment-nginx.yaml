@@ -27,6 +27,9 @@ spec:
           items:
           - key: config
             path: site.conf
+      - name: secretvolume
+        secret:
+          secretName: cs-htpasswd
       containers:
       - name: cs-{{ default "staging" .Release.Namespace }}-nginx
         image: nginx:stable
@@ -38,3 +41,7 @@ spec:
           readOnly: true
         - mountPath: /etc/nginx/conf.d
           name: config
+          readOnly: true
+        - mountPath: /etc/secrets
+          name: secretvolume
+          readOnly: true
