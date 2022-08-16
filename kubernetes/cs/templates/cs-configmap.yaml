@@ -12,6 +12,7 @@ data:
         
         # Set nginx to serve files from the shared volume!
         root /var/www/html;
+        index index.html index.htm index.html.var index.php;
         server_name _;
 
         location ~ /\.ht {
