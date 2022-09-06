@@ -30,5 +30,5 @@ spec:
       volumes:
       - name: webroot
         nfs:
-          path: /calvincsaks/csweb/html
-          server: calvincsaks.file.core.windows.net
+          path: /export/csweb
+          server: cswebnfs-int.k8s.cs.calvin.edu
