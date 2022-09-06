@@ -19,7 +19,7 @@ spec:
       volumes:
       - name: webroot
         nfs:
-          path: /export/csweb
+          path: /export/csweb/html
           server: cswebnfs-int.k8s.cs.calvin.edu
       - name: config
         configMap:
