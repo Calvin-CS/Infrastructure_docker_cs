@@ -5,6 +5,13 @@ metadata:
   labels:
     tier: backend
 data:
+  phpaddldap: |
+      #/bin/sh
+      curl -sSLf -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+        chmod +x /usr/local/bin/install-php-extensions && \
+        install-php-extensions ldap
+
   calvinadcert: |
       -----BEGIN CERTIFICATE-----
       MIIDvjCCAqagAwIBAgIQet07k0XG9rdFFJ8VigIaDTANBgkqhkiG9w0BAQ0FADBf

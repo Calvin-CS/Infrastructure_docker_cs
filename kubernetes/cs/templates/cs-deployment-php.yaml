@@ -6,7 +6,7 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20220812-01"
+    "builddate": "20220819-01"
 spec:
   replicas: 1
   selector:
@@ -23,6 +23,10 @@ spec:
       containers:
       - name: cs-{{ default "staging" .Release.Namespace }}-php
         image: php:8-fpm
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "/usr/local/bin/php-add-ldap.sh"]
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot
@@ -34,6 +38,10 @@ spec:
         - mountPath: /etc/ssl/certs/ddbc78f4.0
           name: config
           subPath: ddbc78f4.0
+          readOnly: true
+        - mountPath: /usr/local/bin/php-add-ldap.sh
+          name: phpconfig
+          subPath: php-add-ldap.sh
           readOnly: true
       volumes:
       - name: webroot
@@ -48,4 +56,11 @@ spec:
             path: CalvinCollege-ad-CA.crt
           - key: calvinadcert
             path: ddbc78f4.0
+      - name: phpconfig
+        configMap:
+          name: cs-{{ default "staging" .Release.Namespace }}-nginx-config
+          defaultMode: 0777
+          items:
+          - key: phpaddldap
+            path: php-add-ldap.sh
 
