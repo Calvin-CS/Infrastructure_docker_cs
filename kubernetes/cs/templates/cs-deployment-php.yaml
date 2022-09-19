@@ -27,8 +27,25 @@ spec:
         - mountPath: /var/www/html
           name: webroot
           readOnly: true
+        - mountPath: /etc/ssl/certs/CalvinCollege-ad-CA.crt
+          name: config
+          subPath: CalvinCollege-ad-CA.crt
+          readOnly: true
+        - mountPath: /etc/ssl/certs/ddbc78f4.0
+          name: config
+          subPath: ddbc78f4.0
+          readOnly: true
       volumes:
       - name: webroot
         nfs:
           path: /export/csweb/html
           server: cswebnfs-int.k8s.cs.calvin.edu
+      - name: config
+        configMap:
+          name: cs-{{ default "staging" .Release.Namespace }}-nginx-config
+          items:
+          - key: calvinadcert
+            path: CalvinCollege-ad-CA.crt
+          - key: calvinadcert
+            path: ddbc78f4.0
+
