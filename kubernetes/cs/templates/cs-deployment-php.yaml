@@ -6,7 +6,7 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20220819-01"
+    "builddate": "20220819-02"
 spec:
   replicas: 1
   selector:

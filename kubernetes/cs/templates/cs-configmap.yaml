@@ -10,7 +10,11 @@ data:
       curl -sSLf -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
         chmod +x /usr/local/bin/install-php-extensions && \
-        install-php-extensions ldap
+        install-php-extensions ldap && \
+        echo "TLS_REQCERT never" > /etc/ldap/ldap.conf && \
+        echo "TLS_CACERTDIR /etc/ssl/certs" >> /etc/ldap/ldap.conf && \
+        cp /etc/ldap/ldap.conf /var/www/.ldaprc && \
+        chown www-data:www-data /var/www/.ldaprc
 
   calvinadcert: |
       -----BEGIN CERTIFICATE-----
