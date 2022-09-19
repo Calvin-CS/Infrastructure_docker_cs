@@ -14,7 +14,8 @@ data:
         echo "TLS_REQCERT never" > /etc/ldap/ldap.conf && \
         echo "TLS_CACERTDIR /etc/ssl/certs" >> /etc/ldap/ldap.conf && \
         cp /etc/ldap/ldap.conf /var/www/.ldaprc && \
-        chown www-data:www-data /var/www/.ldaprc
+        chown www-data:www-data /var/www/.ldaprc && \
+        kill -USR2 1
 
   calvinadcert: |
       -----BEGIN CERTIFICATE-----
