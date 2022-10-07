@@ -4,6 +4,8 @@ metadata:
   name: cs-{{ default "staging" .Release.Namespace }}-nginx-config
   labels:
     tier: backend
+  annotations:
+    "builddate": "20220819-03"
 data:
   phpaddldap: |
       #/bin/sh
