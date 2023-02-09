@@ -6,9 +6,9 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20220819-02"
+    "builddate": "20230209-01"
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: cs-{{ default "staging" .Release.Namespace }}-php
