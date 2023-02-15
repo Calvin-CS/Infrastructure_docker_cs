@@ -5,7 +5,7 @@ metadata:
   labels:
     tier: backend
 spec:
-  {{ if ne .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 3{{- end }}
+  {{ if ne .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 2{{- end }}
   selector:
     matchLabels:
       app: cs-{{ default "staging" .Release.Namespace }}-nginx
@@ -38,6 +38,13 @@ spec:
         image: nginx:stable
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m" # 0.1 CPU
+          limits:
+            memory: "300Mi"
+            cpu: "200m" # 0.2 CPU
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot
@@ -48,3 +55,31 @@ spec:
         - mountPath: /etc/secrets
           name: secretvolume
           readOnly: true
+---
+{{ if eq .Release.Namespace "production" }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cs-nginx-{{ default "staging" .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cs-{{ default "staging" .Release.Namespace }}-nginx
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  #metrics:
+  #- type: Resource
+  #  resource:
+  #    name: cpu
+  #    target:
+  #      type: Utilization
+  #      averageUtilization: 80
+  #- type: Resource
+  #  resource:
+  #    name: memory
+  #    target:
+  #      type: Utilization
+  #      averageUtilization: 85
+{{- end }}
