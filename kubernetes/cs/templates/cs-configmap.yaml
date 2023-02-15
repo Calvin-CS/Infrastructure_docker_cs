@@ -5,9 +5,9 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20220819-03"
+    "builddate": "20230215-3"
 data:
-  phpaddldap: |
+  phpconfigure: |
       #/bin/sh
       curl -sSLf -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
@@ -17,6 +17,13 @@ data:
         echo "TLS_CACERTDIR /etc/ssl/certs" >> /etc/ldap/ldap.conf && \
         cp /etc/ldap/ldap.conf /var/www/.ldaprc && \
         chown www-data:www-data /var/www/.ldaprc && \
+        apt-get update -y && \
+        apt-get install libfcgi-bin -y && \
+        curl -sSLf -o /usr/local/bin/php-fpm-healthcheck \
+        https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck && \
+        chmod +x /usr/local/bin/php-fpm-healthcheck && \
+        set -xe && \
+        echo "pm.status_path = /status" >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
         kill -USR2 1
 
   calvinadcert: |

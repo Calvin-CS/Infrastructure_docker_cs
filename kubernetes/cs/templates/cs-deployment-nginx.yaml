@@ -38,6 +38,18 @@ spec:
         image: nginx:stable
         ports:
         - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /css/readme.txt
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /css/readme.txt
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 5
         resources:
           requests:
             memory: "200Mi"

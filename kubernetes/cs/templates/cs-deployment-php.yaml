@@ -6,9 +6,9 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20230215-01"
+    "builddate": "20230215-03"
 spec:
-  replicas: 2
+  {{ if eq .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 2{{- end }}
   selector:
     matchLabels:
       app: cs-{{ default "staging" .Release.Namespace }}-php
@@ -28,7 +28,21 @@ spec:
         lifecycle:
           postStart:
             exec:
-              command: ["/bin/sh", "-c", "/usr/local/bin/php-add-ldap.sh"]
+              command: ["/bin/sh", "-c", "/usr/local/bin/php-configure-podstart.sh"]
+        livenessProbe:
+          exec:
+            command:
+              - php-fpm-healthcheck
+              - --listen-queue=10 # fails if there are more than 10 processes waiting in the fpm queue
+              - --accepted-conn=5000 # fails after fpm has served more than 5k requests, this will force the pod to reset, use with caution
+          initialDelaySeconds: 0
+          periodSeconds: 20
+        readinessProbe:
+          exec:
+            command:
+              - php-fpm-healthcheck # a simple ping since this means it's ready to handle traffic
+          initialDelaySeconds: 10
+          periodSeconds: 5
         resources:
           requests:
             memory: "50Mi"
@@ -48,9 +62,9 @@ spec:
           name: config
           subPath: ddbc78f4.0
           readOnly: true
-        - mountPath: /usr/local/bin/php-add-ldap.sh
+        - mountPath: /usr/local/bin/php-configure-podstart.sh
           name: phpconfig
-          subPath: php-add-ldap.sh
+          subPath: php-configure-podstart.sh
           readOnly: true
       volumes:
       - name: webroot
@@ -70,8 +84,8 @@ spec:
           name: cs-{{ default "staging" .Release.Namespace }}-nginx-config
           defaultMode: 0777
           items:
-          - key: phpaddldap
-            path: php-add-ldap.sh
+          - key: phpconfigure
+            path: php-configure-podstart.sh
 ---
 {{ if eq .Release.Namespace "production" }}
 apiVersion: autoscaling/v1
