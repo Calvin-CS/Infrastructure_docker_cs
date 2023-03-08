@@ -55,8 +55,8 @@ spec:
             memory: "200Mi"
             cpu: "100m" # 0.1 CPU
           limits:
-            memory: "300Mi"
-            cpu: "200m" # 0.2 CPU
+            memory: "325Mi"
+            cpu: "250m" # 0.25 CPU
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot
@@ -69,7 +69,7 @@ spec:
           readOnly: true
 ---
 {{ if eq .Release.Namespace "production" }}
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: cs-nginx-{{ default "staging" .Release.Namespace }}
@@ -80,18 +80,18 @@ spec:
     name: cs-{{ default "staging" .Release.Namespace }}-nginx
   minReplicas: 2
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-  #metrics:
-  #- type: Resource
-  #  resource:
-  #    name: cpu
-  #    target:
-  #      type: Utilization
-  #      averageUtilization: 80
-  #- type: Resource
-  #  resource:
-  #    name: memory
-  #    target:
-  #      type: Utilization
-  #      averageUtilization: 85
+  #targetCPUUtilizationPercentage: 80
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 85
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
 {{- end }}

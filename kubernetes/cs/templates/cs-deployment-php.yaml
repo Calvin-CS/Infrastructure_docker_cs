@@ -6,7 +6,7 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20230215-03"
+    "builddate": "20230308-1"
 spec:
   {{ if eq .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 2{{- end }}
   selector:
@@ -35,21 +35,21 @@ spec:
               - php-fpm-healthcheck
               - --listen-queue=10 # fails if there are more than 10 processes waiting in the fpm queue
               - --accepted-conn=5000 # fails after fpm has served more than 5k requests, this will force the pod to reset, use with caution
-          initialDelaySeconds: 0
-          periodSeconds: 20
+          initialDelaySeconds: 60
+          periodSeconds: 5
         readinessProbe:
           exec:
             command:
               - php-fpm-healthcheck # a simple ping since this means it's ready to handle traffic
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           periodSeconds: 5
         resources:
           requests:
             memory: "50Mi"
-            cpu: "100m" # 0.1 CPU
+            cpu: "50m" # 0.05 CPU
           limits:
             memory: "100Mi"
-            cpu: "200m" # 0.2 CPU
+            cpu: "400m" # 0.4 CPU
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot
@@ -88,7 +88,7 @@ spec:
             path: php-configure-podstart.sh
 ---
 {{ if eq .Release.Namespace "production" }}
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: cs-php-{{ default "staging" .Release.Namespace }}
@@ -98,20 +98,20 @@ spec:
     kind: Deployment
     name: cs-{{ default "staging" .Release.Namespace }}-php
   minReplicas: 2
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-  #  metrics:
-  #- type: Resource
-  #  resource:
-  #    name: cpu
-  #    target:
-  #      type: Utilization
-  #      averageUtilization: 80
-  #- type: Resource
-  #  resource:
-  #    name: memory
-  #    target:
-  #      type: Utilization
-  #      averageUtilization: 80
+  maxReplicas: 5
+  #targetCPUUtilizationPercentage: 80
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 95
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 95
 {{- end }}
 
