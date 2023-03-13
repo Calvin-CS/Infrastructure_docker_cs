@@ -99,7 +99,7 @@ data:
         location /academics {
             rewrite ^(/academics/bads)$ $rurl/academics/ds permanent;
             rewrite ^(/academics/honors)$ https://calvin.edu/honors permanent;
-            rewrite ^ $rurl$request_uri permanent;
+            rewrite ^ https://computing.calvin.edu/academics/index.html permanent;
           }
         
           location /resources {

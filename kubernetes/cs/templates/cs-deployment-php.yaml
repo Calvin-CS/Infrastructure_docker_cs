@@ -6,7 +6,7 @@ metadata:
   labels:
     tier: backend
   annotations:
-    "builddate": "20230308-1"
+    "builddate": "20230309-1"
 spec:
   {{ if eq .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 2{{- end }}
   selector:
@@ -33,7 +33,7 @@ spec:
           exec:
             command:
               - php-fpm-healthcheck
-              - --listen-queue=10 # fails if there are more than 10 processes waiting in the fpm queue
+              - --listen-queue=15 # fails if there are more than 10 processes waiting in the fpm queue
               - --accepted-conn=5000 # fails after fpm has served more than 5k requests, this will force the pod to reset, use with caution
           initialDelaySeconds: 60
           periodSeconds: 5
@@ -45,8 +45,8 @@ spec:
           periodSeconds: 5
         resources:
           requests:
-            memory: "50Mi"
-            cpu: "50m" # 0.05 CPU
+            memory: "100Mi"
+            cpu: "200m" # 0.2 CPU
           limits:
             memory: "100Mi"
             cpu: "400m" # 0.4 CPU
