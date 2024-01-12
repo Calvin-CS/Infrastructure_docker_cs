@@ -224,6 +224,12 @@ data:
             root                 /var/www/html;
             autoindex           on;
 
+            # ken's symlink 301
+            # http://www.openfusion.net/sysadmin/symlink_redirects_in_nginx
+            if ($symlink_target_rel != "") {
+             return 301 https://cs.calvin.edu$uri_dirname/$symlink_target_rel;
+            }
+
             # password protect x95 directories
             location /courses/cs/x95/videos/2017-2018/protected/ {
               #satisfy all;
