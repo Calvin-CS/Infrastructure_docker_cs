@@ -50,13 +50,13 @@ spec:
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 5
-        resources:
-          requests:
-            memory: "200Mi"
-            cpu: "100m" # 0.1 CPU
-          limits:
-            memory: "325Mi"
-            cpu: "250m" # 0.25 CPU
+        # resources:
+          # requests:
+          #   memory: "200Mi"
+          #   cpu: "50m" # 0.05 CPU
+          # limits:
+          #   memory: "325Mi"
+          #   cpu: "250m" # 0.25 CPU
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot

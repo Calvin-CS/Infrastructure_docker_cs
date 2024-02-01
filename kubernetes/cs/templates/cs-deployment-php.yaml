@@ -43,13 +43,13 @@ spec:
               - php-fpm-healthcheck # a simple ping since this means it's ready to handle traffic
           initialDelaySeconds: 30
           periodSeconds: 5
-        resources:
-          requests:
-            memory: "100Mi"
-            cpu: "200m" # 0.2 CPU
-          limits:
-            memory: "100Mi"
-            cpu: "400m" # 0.4 CPU
+        # resources:
+          # requests:
+          #   memory: "100Mi"
+          #   cpu: "100m" # 0.1 CPU
+          # limits:
+          #   memory: "100Mi"
+          #   cpu: "400m" # 0.4 CPU
         volumeMounts:
         - mountPath: /var/www/html
           name: webroot
