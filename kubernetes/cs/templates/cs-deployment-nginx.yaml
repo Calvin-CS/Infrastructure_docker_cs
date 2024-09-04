@@ -19,6 +19,8 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/cs-configmap.yaml") . | sha256sum }}
         releaseTime: {{ dateInZone "2006-01-02 15:04:05Z" (now) "UTC"| quote }}
     spec:
+      nodeSelector:
+        CSInfrastructure: "true"
       volumes:
       - name: webroot
         nfs:

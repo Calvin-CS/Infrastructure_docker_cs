@@ -22,6 +22,8 @@ spec:
         tier: backend
         {{ if ne .Release.Namespace "production" }}name: cs-{{ .Release.Namespace }}{{- else }}hostname: cs{{- end }}
     spec:
+      nodeSelector:
+        CSInfrastructure: "true"
       containers:
       - name: cs-{{ default "staging" .Release.Namespace }}-php
         image: php:8-fpm
@@ -33,8 +35,8 @@ spec:
           exec:
             command:
               - php-fpm-healthcheck
-              - --listen-queue=15 # fails if there are more than 10 processes waiting in the fpm queue
-              - --accepted-conn=5000 # fails after fpm has served more than 5k requests, this will force the pod to reset, use with caution
+              - --listen-queue=25 # fails if there are more than 25 processes waiting in the fpm queue
+              - --accepted-conn=15000 # fails after fpm has served more than 15k requests, this will force the pod to reset, use with caution
           initialDelaySeconds: 60
           periodSeconds: 5
         readinessProbe:
