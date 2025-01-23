@@ -36,7 +36,7 @@ spec:
             command:
               - php-fpm-healthcheck
               - --listen-queue=25 # fails if there are more than 25 processes waiting in the fpm queue
-              - --accepted-conn=15000 # fails after fpm has served more than 15k requests, this will force the pod to reset, use with caution
+              # - --accepted-conn=15000 # fails after fpm has served more than 15k requests, this will force the pod to reset, use with caution
           initialDelaySeconds: 60
           periodSeconds: 5
         readinessProbe:
@@ -99,8 +99,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: cs-{{ default "staging" .Release.Namespace }}-php
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 2
   #targetCPUUtilizationPercentage: 80
   metrics:
   - type: Resource
