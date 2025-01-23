@@ -8,7 +8,7 @@ metadata:
   annotations:
     "builddate": "20230309-1"
 spec:
-  {{ if eq .Release.Namespace "production" }}replicas: 1{{- else }}replicas: 2{{- end }}
+  replicas: 1
   selector:
     matchLabels:
       app: cs-{{ default "staging" .Release.Namespace }}-php
